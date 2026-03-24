@@ -166,6 +166,19 @@ canvas#plot {
   display: block;
 }
 
+.subChartTitle {
+  margin: 10px 0 6px;
+  font-weight: 700;
+}
+
+canvas#errorPlot {
+  width: 100%;
+  height: 220px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  display: block;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -227,5 +240,9 @@ tbody td {
 
   canvas#plot {
     height: 240px;
+  }
+
+  canvas#errorPlot {
+    height: 210px;
   }
 }

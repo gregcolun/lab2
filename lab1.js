@@ -11,6 +11,7 @@ const runBtn = document.getElementById("runBtn");
 const statusEl = document.getElementById("status");
 const valuesBody = document.getElementById("valuesBody");
 const plot = document.getElementById("plot");
+const errorPlot = document.getElementById("errorPlot");
 
 const PRESETS = [
   {
@@ -476,6 +477,89 @@ function drawPlot(canvas, original, approx, errorSample, nodeData, a, b) {
   ctx.fillText(`domeniu [${a}, ${b}]`, padL, H - 10);
 }
 
+function drawErrorPlot(canvas, errorSample, a, b, eps) {
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width;
+  const H = canvas.height;
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, W, H);
+
+  const finiteErrors = errorSample.ys.filter((y) => isFiniteNumber(y) && y >= 0);
+  const maxError = finiteErrors.length > 0 ? Math.max(...finiteErrors) : 1;
+  const yMin = 0;
+  let yMax = Math.max(maxError, eps || 0);
+  if (yMax < 1e-12) yMax = 1;
+  yMax *= 1.1;
+
+  const padL = 52;
+  const padR = 20;
+  const padT = 20;
+  const padB = 35;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+
+  const xToPx = (x) => padL + ((x - a) * plotW) / (b - a);
+  const yToPy = (y) => padT + ((yMax - y) * plotH) / (yMax - yMin);
+
+  ctx.strokeStyle = "#cfcfcf";
+  ctx.strokeRect(padL, padT, plotW, plotH);
+
+  ctx.strokeStyle = "#bdbdbd";
+  ctx.beginPath();
+  ctx.moveTo(padL, yToPy(0));
+  ctx.lineTo(W - padR, yToPy(0));
+  ctx.stroke();
+
+  if (eps > 0) {
+    ctx.strokeStyle = "#8a6d00";
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    ctx.moveTo(padL, yToPy(eps));
+    ctx.lineTo(W - padR, yToPy(eps));
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  ctx.strokeStyle = "#2f855a";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+
+  let started = false;
+  for (let i = 0; i < errorSample.xs.length; i++) {
+    const x = errorSample.xs[i];
+    const y = errorSample.ys[i];
+
+    if (!isFiniteNumber(y)) {
+      started = false;
+      continue;
+    }
+
+    const px = xToPx(x);
+    const py = yToPy(Math.max(0, y));
+    if (!started) {
+      ctx.moveTo(px, py);
+      started = true;
+    } else {
+      ctx.lineTo(px, py);
+    }
+  }
+  ctx.stroke();
+
+  ctx.fillStyle = "#333333";
+  ctx.font = "12px Arial";
+  ctx.fillText("verde = E(x) = |f(x)-P(x)|", padL, 14);
+  if (eps > 0) {
+    ctx.fillStyle = "#8a6d00";
+    ctx.fillText(`linie punctata = prag ${eps.toExponential(2)}`, padL + 200, 14);
+  }
+  ctx.fillStyle = "#333333";
+  ctx.fillText(`domeniu [${a}, ${b}]`, padL, H - 10);
+}
+
 runBtn.addEventListener("click", () => {
   clearTables();
 
@@ -529,6 +613,7 @@ runBtn.addEventListener("click", () => {
   const approxSample = sampleFunction(approx, a, b);
   const errorSample = sampleFunction((x) => Math.abs(f(x) - approx(x)), a, b);
   drawPlot(plot, originalSample, approxSample, errorSample, nodeData, a, b);
+  drawErrorPlot(errorPlot, errorSample, a, b, eps);
 
   const methodName = methodSelect.options[methodSelect.selectedIndex].textContent;
   const nodeTypeName = nodeTypeSelect.options[nodeTypeSelect.selectedIndex].textContent;
