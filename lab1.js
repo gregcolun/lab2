@@ -7,6 +7,7 @@ const epsInput = document.getElementById("epsInput");
 const methodSelect = document.getElementById("methodSelect");
 const nodeTypeSelect = document.getElementById("nodeTypeSelect");
 const nInput = document.getElementById("nInput");
+const mInput = document.getElementById("mInput");
 const runBtn = document.getElementById("runBtn");
 const statusEl = document.getElementById("status");
 const valuesBody = document.getElementById("valuesBody");
@@ -82,10 +83,12 @@ function parseDomain(rawDomain) {
   return { a, b };
 }
 
-function validateData(a, b, nodeCount, eps) {
+function validateData(a, b, nodeCount, maxNodeCount, eps) {
   if (!isFiniteNumber(a) || !isFiniteNumber(b)) return "Valorile domeniului sunt invalide.";
   if (a >= b) return "Trebuie sa avem a < b in domeniul [a, b].";
   if (!Number.isInteger(nodeCount) || nodeCount < 2) return "Nr. noduri trebuie sa fie intreg si >= 2.";
+  if (!Number.isInteger(maxNodeCount) || maxNodeCount < 2) return "Nr. de noduri maxim (m) trebuie sa fie intreg si >= 2.";
+  if (maxNodeCount < nodeCount) return "m trebuie sa fie mai mare sau egal cu n.";
   if (!isFiniteNumber(eps) || eps < 0) return "Eroarea trebuie sa fie un numar >= 0.";
   return "";
 }
@@ -574,11 +577,12 @@ runBtn.addEventListener("click", () => {
   const a = domain.a;
   const b = domain.b;
   const nodeCount = Number(nInput.value);
+  const maxNodeCount = Number(mInput.value);
   const eps = Number(epsInput.value);
   const nodeType = nodeTypeSelect.value;
   const method = methodSelect.value;
 
-  const validationMessage = validateData(a, b, nodeCount, eps);
+  const validationMessage = validateData(a, b, nodeCount, maxNodeCount, eps);
   if (validationMessage) {
     setStatus(validationMessage, "err");
     return;
@@ -606,7 +610,7 @@ runBtn.addEventListener("click", () => {
   }
 
   const approx = buildApproximation(nodeData, method);
-  const evalPoints = buildEvaluationPoints(a, b, Math.max(25, nodeCount * 4));
+  const evalPoints = buildEvaluationPoints(a, b, maxNodeCount);
   const maxError = fillValuesTable(f, approx, evalPoints);
 
   const originalSample = sampleFunction(f, a, b);
@@ -621,7 +625,7 @@ runBtn.addEventListener("click", () => {
   const thresholdText = thresholdOk ? "respectata" : "depasita";
 
   setStatus(
-    `Calcul finalizat. Forma: ${methodName}. Retea: ${nodeTypeName}. Noduri: ${nodeCount}. Eroare maxima = ${maxError.toExponential(3)}. Prag = ${eps.toExponential(3)} (${thresholdText}).`,
+    `Calcul finalizat. Forma: ${methodName}. Retea: ${nodeTypeName}. n = ${nodeCount}, m = ${maxNodeCount}. Eroare maxima = ${maxError.toExponential(3)}. Prag = ${eps.toExponential(3)} (${thresholdText}).`,
     thresholdOk ? "ok" : "warn"
   );
 });
