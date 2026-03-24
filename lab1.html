@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calcul numeric - Aproximarea polinomială</title>
+  <link rel="stylesheet" href="lab1.css">
+</head>
+<body>
+  <div class="wrap">
+    <h1>Interpolarea matematica</h1>
+
+    <fieldset class="card">
+      <legend>Date de intrare</legend>
+
+      <div class="fieldGroup">
+        <label>Functie</label>
+        <div class="inlineRow">
+          <label class="inlineChoice">
+            <input type="radio" id="modeCollection" name="mode" checked />
+            <span>din colectie</span>
+          </label>
+          <label class="inlineChoice">
+            <input type="radio" id="modeInteractive" name="mode" />
+            <span>interactiv</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="fieldGroup">
+        <label for="presetSelect">Colectie functii</label>
+        <select id="presetSelect">
+          <option value="">Selectați funcția</option>
+        </select>
+      </div>
+
+      <div class="fieldGroup">
+        <label for="exprInput">f(x)</label>
+        <input id="exprInput" type="text" value="sin(x)+cos(x)" disabled />
+      </div>
+
+      <div class="fieldGroup">
+        <label for="domainInput">Domeniu de definitie</label>
+        <input id="domainInput" type="text" value="[-3, 3]" />
+      </div>
+
+      <div class="fieldGroup">
+        <label for="epsInput">Eroarea</label>
+        <input id="epsInput" type="number" min="0" step="any" value="1e-3" />
+      </div>
+    </fieldset>
+
+    <fieldset class="card">
+      <legend>Tehnici de interpolare</legend>
+
+      <div class="fieldGroup">
+        <label for="methodSelect">Forma polinomului</label>
+        <select id="methodSelect">
+          <option value="lagrange">Polinom Lagrange</option>
+          <option value="piecewise">Lagrange pe porțiuni</option>
+          <option value="spline">Spline cubic</option>
+        </select>
+      </div>
+
+      <div class="fieldGroup">
+        <label for="nInput">Nr. noduri</label>
+        <input id="nInput" class="small" type="number" min="2" value="9" />
+      </div>
+
+      <div class="fieldGroup">
+        <label for="nodeTypeSelect">Tipul retelei</label>
+        <select id="nodeTypeSelect">
+          <option value="equidistant">Echidistanta</option>
+          <option value="chebyshev">Chebyshev</option>
+          <option value="random">Aleatoare</option>
+        </select>
+      </div>
+
+      <div class="actionRow">
+        <button id="runBtn">Executa</button>
+      </div>
+      <div id="status" class="hint">Introduceți datele și apăsați Execută.</div>
+    </fieldset>
+
+    <fieldset class="card">
+      <legend>Reprezentarea grafica a f(x), P(x), E(x)</legend>
+      <canvas id="plot" width="900" height="420"></canvas>
+    </fieldset>
+
+    <fieldset class="card">
+      <legend>Rezultatele numerice ale interpolarii</legend>
+      <table>
+        <thead>
+          <tr>
+            <th>X<sub>i</sub></th>
+            <th>f(X<sub>i</sub>)</th>
+            <th>P(X<sub>i</sub>)</th>
+            <th>E</th>
+          </tr>
+        </thead>
+        <tbody id="valuesBody"></tbody>
+      </table>
+    </fieldset>
+  </div>
+
+  <script src="lab1.js"></script>
+</body>
+</html>
